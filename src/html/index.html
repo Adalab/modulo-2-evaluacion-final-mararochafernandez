@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Adalab Web Starter Kit</title>
+    <title>Buscador de series de anime</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/css/main.css" />
     <link rel="icon" href="./assets/images/favicon.png" />
-  </head>
+</head>
 
-  <body>
-    <div class="page">
-      <include src="./partials/header.html" title="Bienvenidos a Adalab"></include>
-      <include src="./partials/main.html"></include>
-      <include src="./partials/footer.html"></include>
-    </div>
+<body>
+    <include src="./partials/header.html" title="Buscador de series de anime"></include>
+    <main class="main">
+        <include src="./partials/search.html"></include>
+        <include src="./partials/results.html"></include>
+    </main>
     <script src="./assets/js/main.js"></script>
-  </body>
+</body>
+
 </html>

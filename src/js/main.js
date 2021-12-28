@@ -1,3 +1,3 @@
 'use strict';
 
-console.log('>> Ready :)');
+/* Do your magic! 🦄🦄🦄 */
