@@ -6,7 +6,7 @@ Exercise URL: [Buscador de series de anime](#)
 
 # Final evaluation exercise (module 2: JavaScript)
 
-JavaScript web application for searching anime series that allows mark as favorites.
+JavaScript web application for searching anime series and adding them as favorites.
 
 ## Features
 
