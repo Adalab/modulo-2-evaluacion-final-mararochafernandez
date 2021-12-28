@@ -5,9 +5,9 @@
 
 
 /* SAMPLE RESULTS LIST:
-<ul class="results__list js-results-list">
+<ul class="results__list">
   <li class="results__item">
-    <img class="results__img" src="https://via.placeholder.com/210x295/ffffff/666666/?text=TV" alt="Naruto: Shippuuden" />
+    <img class="results__img" src="https://via.placeholder.com/227x320/e5e5e5/666/?text=TV" alt="Naruto: Shippuuden" />
     <h2 class="results__title">Naruto: Shippuuden</h2>
   </li>
 </ul> */
@@ -16,11 +16,19 @@
 // global data
 
 const API_URL = 'https://api.jikan.moe/v3/search/anime';
+const DEFAULT_IMAGE = 'https://via.placeholder.com/227x320/e5e5e5/666/?text=TV';
 
 let searchTerm = 'naruto';
 
 let animeSeries = [];
 let favorites = [];
+
+
+// item event
+
+function handleItemEvent(event) {
+  console.log(event.currentTarget);
+}
 
 
 // render anime series
@@ -31,19 +39,19 @@ function renderAnimeSeries() {
 
   // list html element: <ul> tag
   const newList = document.createElement('ul');
-  newList.className = 'results__list js-results-list';
-
+  newList.className = 'results__list';
   for (const animeSerie of animeSeries) {
 
     // item html element: <li> tag
     const newItem = document.createElement('li');
     newItem.className = 'results__item';
     newItem.dataset.id = animeSerie.mal_id;
+    newItem.addEventListener('click', handleItemEvent);
 
     // image html element: <img> tag
     const newImage = document.createElement('img');
     newImage.className = 'results__img';
-    newImage.src = animeSerie.image_url;
+    newImage.src = animeSerie.image_url ? animeSerie.image_url : DEFAULT_IMAGE;
     newImage.alt = animeSerie.title;
 
     // title html element: <h2> tag
@@ -65,7 +73,7 @@ function getAnimeSeriesFromApi() {
 
   // api documentation: only processes queries with a minimum of 3 letters
   if (searchTerm.length >= 3) {
-    fetch(`${API_URL}?q=${searchTerm}`)
+    fetch(`${API_URL}?q=${searchTerm}&limit=3`)
       .then(response => response.json())
       .then(data => {
         animeSeries = data.results;
@@ -75,7 +83,7 @@ function getAnimeSeriesFromApi() {
 }
 
 
-// listen and handle search button event
+// search button event
 
 function listenSearchButtonEvent() {
   const searchButtonElement = document.querySelector('.js-button-submit');
