@@ -24,14 +24,37 @@ let animeSeries = [];
 let favorites = [];
 
 
-// item event
+// helpers
 
-function handleItemEvent(event) {
-  console.log(event.currentTarget);
+function getIndex(array, id) {
+  return array.findIndex(item => item.mal_id === id);
 }
 
 
-// render anime series
+// list item event
+
+function handleListItemEvent(event) {
+  const currentId = parseInt(event.currentTarget.dataset.id);
+
+  // get indexes from arrays
+  const animeSerieIndex = getIndex(animeSeries, currentId);
+  const favoriteIndex = getIndex(favorites, currentId);
+
+  // add/remove as favorite
+  if (favoriteIndex === -1) {
+    favorites.push(animeSeries[animeSerieIndex]);
+    event.currentTarget.classList.add('results__item--fav');
+  } else {
+    favorites.splice(favoriteIndex, 1);
+    event.currentTarget.classList.remove('results__item--fav');
+  }
+
+  // save favorites in local storage
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+}
+
+
+// data rendering
 
 function renderAnimeSeries() {
   const resultsElement = document.querySelector('.js-results');
@@ -42,11 +65,11 @@ function renderAnimeSeries() {
   newList.className = 'results__list';
   for (const animeSerie of animeSeries) {
 
-    // item html element: <li> tag
+    // list item html element: <li> tag
     const newItem = document.createElement('li');
     newItem.className = 'results__item';
     newItem.dataset.id = animeSerie.mal_id;
-    newItem.addEventListener('click', handleItemEvent);
+    newItem.addEventListener('click', handleListItemEvent);
 
     // image html element: <img> tag
     const newImage = document.createElement('img');
@@ -98,7 +121,7 @@ function handleSearchButtonEvent(event) {
 }
 
 
-// start app
+// app start
 
 listenSearchButtonEvent();
 getAnimeSeriesFromApi();

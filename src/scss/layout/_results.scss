@@ -1,5 +1,9 @@
 .results {
     &__item {
         margin-top: 20px;
+        &--fav {
+            background-color: #000;
+            color: #fff;
+        }
     }
 }
