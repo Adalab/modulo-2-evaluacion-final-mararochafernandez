@@ -4,7 +4,7 @@
 
 Exercise URL: [Buscador de series de anime](#)
 
-# Final evaluation exercise (module 2: JavaScript)
+# Final evaluation exercise (module 2)
 
 JavaScript web application for searching anime series and adding them as favorites.
 

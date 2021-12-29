@@ -4,13 +4,11 @@
 /* Let's do magic! 🦄🦄🦄 */
 
 
-/* SAMPLE RESULTS LIST:
-<ul class="results__list">
-  <li class="results__item">
-    <img class="results__img" src="https://via.placeholder.com/227x320/e5e5e5/666/?text=TV" alt="Naruto: Shippuuden" />
-    <h2 class="results__title">Naruto: Shippuuden</h2>
-  </li>
-</ul> */
+/* SAMPLE RESULT LIST ITEM:
+<li class="results__item">
+  <img class="results__image" src="https://via.placeholder.com/227x320/e5e5e5/666/?text=TV" alt="Naruto: Shippuuden" />
+  <h3 class="results__title">Naruto: Shippuuden</h3>
+</li> */
 
 
 // global data
@@ -26,66 +24,81 @@ let favorites = [];
 
 // helpers
 
-function getIndex(array, id) {
+function findIndex(array, id) {
   return array.findIndex(item => item.mal_id === id);
 }
 
-
-// list item event
-
-function handleListItemEvent(event) {
-  const currentId = parseInt(event.currentTarget.dataset.id);
-
-  // get indexes from arrays
-  const animeSerieIndex = getIndex(animeSeries, currentId);
-  const favoriteIndex = getIndex(favorites, currentId);
-
-  // add/remove as favorite
-  if (favoriteIndex === -1) {
-    favorites.push(animeSeries[animeSerieIndex]);
-    event.currentTarget.classList.add('results__item--fav');
-  } else {
-    favorites.splice(favoriteIndex, 1);
-    event.currentTarget.classList.remove('results__item--fav');
-  }
-
-  // save favorites in local storage
-  localStorage.setItem('favorites', JSON.stringify(favorites));
+function findItem(array, id) {
+  return array.find(item => item.mal_id === id);
 }
 
 
 // data rendering
 
-function renderAnimeSeries() {
-  const resultsElement = document.querySelector('.js-results');
-  resultsElement.textContent = '';
+function renderImage(serie) {
+  const element = document.createElement('img');
+  element.className = 'results__image';
+  element.src = serie.image_url ? serie.image_url : DEFAULT_IMAGE;
+  element.alt = serie.title;
+  return element;
+}
 
-  // list html element: <ul> tag
-  const newList = document.createElement('ul');
-  newList.className = 'results__list';
+function renderTitle(serie) {
+  const element = document.createElement('h3');
+  element.className = 'results__title';
+  element.textContent = serie.title;
+  return element;
+}
+
+function renderListItem(serie) {
+  const element = document.createElement('li');
+  element.dataset.id = serie.mal_id;
+  element.addEventListener('click', handleListItemEvent);
+
+  // find favorite
+  const favorite = findItem(favorites, serie.mal_id);
+  element.className = favorite ? 'results__item results__item--fav' : 'results__item';
+
+  return element;
+}
+
+function renderAnimeSeries() {
+  const resultsListElement = document.querySelector('.js-results-list');
+  resultsListElement.textContent = '';
   for (const animeSerie of animeSeries) {
 
     // list item html element: <li> tag
-    const newItem = document.createElement('li');
-    newItem.className = 'results__item';
-    newItem.dataset.id = animeSerie.mal_id;
-    newItem.addEventListener('click', handleListItemEvent);
+    const newItem = renderListItem(animeSerie);
 
     // image html element: <img> tag
-    const newImage = document.createElement('img');
-    newImage.className = 'results__img';
-    newImage.src = animeSerie.image_url ? animeSerie.image_url : DEFAULT_IMAGE;
-    newImage.alt = animeSerie.title;
+    const newImage = renderImage(animeSerie);
 
-    // title html element: <h2> tag
-    const newTitle = document.createElement('h2');
-    newTitle.className = 'results__title';
-    newTitle.textContent = animeSerie.title;
+    // title html element: <h3> tag
+    const newTitle = renderTitle(animeSerie);
 
     newItem.appendChild(newImage);
     newItem.appendChild(newTitle);
-    newList.appendChild(newItem);
-    resultsElement.appendChild(newList);
+    resultsListElement.appendChild(newItem);
+  }
+}
+
+function renderFavorites() {
+  const favoritesListElement = document.querySelector('.js-favorites-list');
+  favoritesListElement.textContent = '';
+  for (const favorite of favorites) {
+
+    // list item html element: <li> tag
+    const newItem = renderListItem(favorite);
+
+    // image html element: <img> tag
+    const newImage = renderImage(favorite);
+
+    // title html element: <h3> tag
+    const newTitle = renderTitle(favorite);
+
+    newItem.appendChild(newImage);
+    newItem.appendChild(newTitle);
+    favoritesListElement.appendChild(newItem);
   }
 }
 
@@ -94,9 +107,11 @@ function renderAnimeSeries() {
 
 function getAnimeSeriesFromApi() {
 
+  /* pending implementation: pagination */
+
   // api documentation: only processes queries with a minimum of 3 letters
   if (searchTerm.length >= 3) {
-    fetch(`${API_URL}?q=${searchTerm}&limit=3`)
+    fetch(`${API_URL}?q=${searchTerm}&limit=5`)
       .then(response => response.json())
       .then(data => {
         animeSeries = data.results;
@@ -106,7 +121,25 @@ function getAnimeSeriesFromApi() {
 }
 
 
-// search button event
+// local storage
+
+function getFavoritesFromLocalStorage() {
+  const favoritesFromLocalStorage = JSON.parse(localStorage.getItem('favorites'));
+  if (favoritesFromLocalStorage && favoritesFromLocalStorage.length > 0) {
+    favorites = favoritesFromLocalStorage;
+  }
+}
+
+function saveFavoritesInLocalStorage() {
+  if (favorites.length === 0) {
+    localStorage.removeItem('favorites');
+  } else {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }
+}
+
+
+// event listeners and handlers
 
 function listenSearchButtonEvent() {
   const searchButtonElement = document.querySelector('.js-button-submit');
@@ -120,8 +153,34 @@ function handleSearchButtonEvent(event) {
   getAnimeSeriesFromApi();
 }
 
+function handleListItemEvent(event) {
+  const currentId = parseInt(event.currentTarget.dataset.id);
+
+  // find indexes
+  const animeSerieIndex = findIndex(animeSeries, currentId);
+  const favoriteIndex = findIndex(favorites, currentId);
+
+  // add/remove as favorite
+  if (favoriteIndex === -1) {
+    favorites.push(animeSeries[animeSerieIndex]);
+    event.currentTarget.classList.add('results__item--fav');
+  } else {
+    favorites.splice(favoriteIndex, 1);
+    event.currentTarget.classList.remove('results__item--fav');
+  }
+
+  // save favorites in local storage
+  saveFavoritesInLocalStorage();
+
+  // render data
+  renderFavorites();
+  renderAnimeSeries();
+}
+
 
 // app start
 
-listenSearchButtonEvent();
 getAnimeSeriesFromApi();
+listenSearchButtonEvent();
+getFavoritesFromLocalStorage();
+renderFavorites();
