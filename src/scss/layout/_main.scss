@@ -7,20 +7,42 @@ body {
     &__wrapper {
         margin-top: 20px;
         display: flex;
-        column-gap: 20px;
+    }
+    &__button {
+        padding: 6px 8px;
+        border: none;
+        border-radius: 5px;
+        color: $color-light;
+        background-color: $color-dark;
+        cursor: pointer;
+        &--favorites {
+            margin-top: 20px;
+            width: 235px;
+            text-align: center;
+        }
     }
 }
 
 .results {
-    width: 235px;
-    height: auto;
+    &__title {
+        &--favorites {
+            color: $color-primary;
+        }
+    }
+    &__list {
+        display: flex;
+        flex-wrap: wrap;
+    }
     &__item {
+        width: 235px;
+        height: auto;
         margin-top: 20px;
+        margin-right: 20px;
         border: 1px solid $color-secondary;
         border-radius: 5px;
         line-height: 0;
         cursor: pointer;
-        &--fav {
+        &--favorite {
             border-color: $color-primary;
             background-color: $color-primary;
         }
@@ -35,5 +57,17 @@ body {
         padding: 10px;
         line-height: normal;
         margin-bottom: 3px;
+    }
+}
+
+.favorites.results {
+    margin-right: 40px;
+    border: none;
+    padding-left: 0;
+}
+
+.favorites .results {
+    &__list {
+        display: block;
     }
 }
