@@ -4,13 +4,6 @@
 /* Let's do magic! 🦄🦄🦄 */
 
 
-/* SAMPLE RESULT LIST ITEM:
-<li class="results__item">
-  <img class="results__image" src="https://via.placeholder.com/227x320/e5e5e5/666/?text=TV" alt="Naruto: Shippuuden" />
-  <h3 class="results__title">Naruto: Shippuuden</h3>
-</li> */
-
-
 // global data
 
 const API_URL = 'https://api.jikan.moe/v3/search/anime';
@@ -35,25 +28,51 @@ function findItem(array, id) {
 
 // data rendering
 
-function renderImage(serie) {
-  const element = document.createElement('img');
-  element.className = 'results__image';
-  element.src = serie.image_url ? serie.image_url : DEFAULT_IMAGE;
-  element.alt = serie.title;
-  return element;
+function renderFavorites() {
+  renderData('.js-favorites', 'Series favoritas', favorites);
 }
 
-function renderTitle(serie) {
-  const element = document.createElement('h3');
+function renderAnimeSeries() {
+  renderData('.js-results', 'Resultados', animeSeries);
+}
+
+function renderData(selector, title, series) {
+  const element = document.querySelector(selector);
+  element.textContent = '';
+  const newTitle = renderTitle(title);
+  const newList = renderList();
+  for (const serie of series) {
+    const newItem = renderItem(serie);
+    const newImage = renderImage(serie);
+    const newSubtitle = renderSubtitle(serie);
+    newItem.appendChild(newImage);
+    newItem.appendChild(newSubtitle);
+    newList.appendChild(newItem);
+  }
+  element.appendChild(newTitle);
+  element.appendChild(newList);
+}
+
+// title html element: <h2> tag
+function renderTitle(title) {
+  const element = document.createElement('h2');
   element.className = 'results__title';
-  element.textContent = serie.title;
+  element.textContent = title;
   return element;
 }
 
-function renderListItem(serie) {
+// list html element: <ul> tag
+function renderList() {
+  const element = document.createElement('ul');
+  element.className = 'results__list';
+  return element;
+}
+
+// list item html element: <li> tag
+function renderItem(serie) {
   const element = document.createElement('li');
   element.dataset.id = serie.mal_id;
-  element.addEventListener('click', handleListItemEvent);
+  element.addEventListener('click', handleItemEvent);
 
   // find favorite
   const favorite = findItem(favorites, serie.mal_id);
@@ -62,44 +81,21 @@ function renderListItem(serie) {
   return element;
 }
 
-function renderAnimeSeries() {
-  const resultsListElement = document.querySelector('.js-results-list');
-  resultsListElement.textContent = '';
-  for (const animeSerie of animeSeries) {
-
-    // list item html element: <li> tag
-    const newItem = renderListItem(animeSerie);
-
-    // image html element: <img> tag
-    const newImage = renderImage(animeSerie);
-
-    // title html element: <h3> tag
-    const newTitle = renderTitle(animeSerie);
-
-    newItem.appendChild(newImage);
-    newItem.appendChild(newTitle);
-    resultsListElement.appendChild(newItem);
-  }
+// image html element: <img> tag
+function renderImage(serie) {
+  const element = document.createElement('img');
+  element.className = 'results__image';
+  element.src = serie.image_url ? serie.image_url : DEFAULT_IMAGE;
+  element.alt = serie.title;
+  return element;
 }
 
-function renderFavorites() {
-  const favoritesListElement = document.querySelector('.js-favorites-list');
-  favoritesListElement.textContent = '';
-  for (const favorite of favorites) {
-
-    // list item html element: <li> tag
-    const newItem = renderListItem(favorite);
-
-    // image html element: <img> tag
-    const newImage = renderImage(favorite);
-
-    // title html element: <h3> tag
-    const newTitle = renderTitle(favorite);
-
-    newItem.appendChild(newImage);
-    newItem.appendChild(newTitle);
-    favoritesListElement.appendChild(newItem);
-  }
+// subtitle html element: <h3> tag
+function renderSubtitle(serie) {
+  const element = document.createElement('h3');
+  element.className = 'results__subtitle';
+  element.textContent = serie.title;
+  return element;
 }
 
 
@@ -153,7 +149,7 @@ function handleSearchButtonEvent(event) {
   getAnimeSeriesFromApi();
 }
 
-function handleListItemEvent(event) {
+function handleItemEvent(event) {
   const currentId = parseInt(event.currentTarget.dataset.id);
 
   // find indexes
@@ -180,7 +176,7 @@ function handleListItemEvent(event) {
 
 // app start
 
-getAnimeSeriesFromApi();
-listenSearchButtonEvent();
 getFavoritesFromLocalStorage();
 renderFavorites();
+//getAnimeSeriesFromApi();
+listenSearchButtonEvent();

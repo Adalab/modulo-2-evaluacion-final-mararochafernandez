@@ -10,3 +10,30 @@ body {
         column-gap: 20px;
     }
 }
+
+.results {
+    width: 235px;
+    height: auto;
+    &__item {
+        margin-top: 20px;
+        border: 1px solid $color-secondary;
+        border-radius: 5px;
+        line-height: 0;
+        cursor: pointer;
+        &--fav {
+            border-color: $color-primary;
+            background-color: $color-primary;
+        }
+    }
+    &__image {
+        width: 227px;
+        height: 320px;
+        margin: 3px;
+        border-radius: 5px;
+    }
+    &__subtitle {
+        padding: 10px;
+        line-height: normal;
+        margin-bottom: 3px;
+    }
+}
