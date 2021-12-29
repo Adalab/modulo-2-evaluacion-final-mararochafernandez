@@ -35,6 +35,8 @@ function renderFavorites() {
     favoritesElement.classList.add('favorites');
     renderData(favoritesElement, 'Series favoritas', favorites);
     renderRemoveAllFavorites();
+  } else {
+    favoritesElement.classList.remove('favorites');
   }
 }
 
@@ -89,7 +91,7 @@ function renderListItem(serie) {
 function renderImage(serie) {
   const element = document.createElement('img');
   element.className = 'results__image';
-  element.src = serie.image_url ? serie.image_url : DEFAULT_IMAGE;
+  element.src = serie.image_url && serie.image_url.includes('https://cdn.myanimelist.net/images/anime/') ? serie.image_url : DEFAULT_IMAGE;
   element.alt = serie.title;
   return element;
 }
@@ -134,16 +136,16 @@ function getAnimeSeriesFromApi() {
 
 function getFavoritesFromLocalStorage() {
   const favoritesFromLocalStorage = JSON.parse(localStorage.getItem('favorites'));
-  if (favoritesFromLocalStorage && favoritesFromLocalStorage.length > 0) {
+  if (favoritesFromLocalStorage) {
     favorites = favoritesFromLocalStorage;
   }
 }
 
 function saveFavoritesInLocalStorage() {
-  if (favorites.length === 0) {
-    removeFavoritesFromLocalStorage();
-  } else {
+  if (favorites.length > 0) {
     localStorage.setItem('favorites', JSON.stringify(favorites));
+  } else {
+    removeFavoritesFromLocalStorage();
   }
 }
 
@@ -154,16 +156,32 @@ function removeFavoritesFromLocalStorage() {
 
 // event listeners and handlers
 
-function listenSearch() {
-  const searchButtonElement = document.querySelector('.js-button-submit');
+function listenSearchForm() {
+  const searchButtonElement = document.querySelector('.js-button-search');
+  const resetButtonElement = document.querySelector('.js-button-reset');
   searchButtonElement.addEventListener('click', handleSearch);
+  resetButtonElement.addEventListener('click', handleReset);
 }
 
 function handleSearch(event) {
   event.preventDefault();
   const searchTermElement = document.querySelector('.js-search-term');
-  searchTerm = searchTermElement.value ? searchTermElement.value : searchTerm;
-  getAnimeSeriesFromApi();
+  //searchTerm = searchTermElement.value ? searchTermElement.value : searchTerm;
+  searchTerm = searchTermElement.value;
+  if (searchTerm) {
+    getAnimeSeriesFromApi();
+  } else {
+    animeSeries = [];
+    renderAnimeSeries();
+  }
+}
+
+function handleReset(event) {
+  event.preventDefault();
+  const searchTermElement = document.querySelector('.js-search-term');
+  searchTermElement.value = '';
+  animeSeries = [];
+  renderAnimeSeries();
 }
 
 function handleListItem(event) {
@@ -192,9 +210,9 @@ function handleListItem(event) {
 
 function handleRemoveAllFavorites() {
   favorites = [];
-  removeFavoritesFromLocalStorage();
   renderFavorites();
   renderAnimeSeries();
+  removeFavoritesFromLocalStorage();
 }
 
 
@@ -202,5 +220,4 @@ function handleRemoveAllFavorites() {
 
 getFavoritesFromLocalStorage();
 renderFavorites();
-//getAnimeSeriesFromApi();
-listenSearch();
+listenSearchForm();
