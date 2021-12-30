@@ -34,7 +34,8 @@ function renderFavorites() {
   if (favorites.length > 0) {
     favoritesElement.classList.add('favorites');
     renderData(favoritesElement, 'Series favoritas', favorites);
-    renderRemoveAllFavorites();
+    renderResultsButton(favoritesElement, 'Borrar series favoritas', handleRemoveAllFavorites);
+
   } else {
     favoritesElement.classList.remove('favorites');
   }
@@ -45,16 +46,17 @@ function renderAnimeSeries() {
   resultsElement.textContent = '';
   if (animeSeries.length > 0) {
     renderData(resultsElement, 'Resultados', animeSeries);
+    renderResultsButton(resultsElement, 'Cargar más resultados', handleLoadMoreResults);
   }
 }
 
-function renderData(element, title, series) {
-  const newTitle = renderTitle(title);
+function renderData(element, text, series) {
+  const newTitle = renderTitle(text);
   const newList = renderList();
   for (const serie of series) {
-    const newListItem = renderListItem(title, serie);
+    const newListItem = renderListItem(text, serie);
     const newImage = renderImage(serie);
-    const newSubtitle = renderSubtitle(title, serie);
+    const newSubtitle = renderSubtitle(text, serie);
     newListItem.appendChild(newImage);
     newListItem.appendChild(newSubtitle);
     newList.appendChild(newListItem);
@@ -63,10 +65,10 @@ function renderData(element, title, series) {
   element.appendChild(newList);
 }
 
-function renderTitle(title) {
+function renderTitle(text) {
   const element = document.createElement('h2');
   element.className = 'results__title';
-  element.textContent = title;
+  element.textContent = text;
   return element;
 }
 
@@ -76,12 +78,12 @@ function renderList() {
   return element;
 }
 
-function renderListItem(title, serie) {
+function renderListItem(text, serie) {
   const element = document.createElement('li');
   element.dataset.id = serie.mal_id;
 
   // listen list item
-  if (title === 'Resultados') {
+  if (text === 'Resultados') {
     element.addEventListener('click', handleListItem);
   }
 
@@ -100,13 +102,13 @@ function renderImage(serie) {
   return element;
 }
 
-function renderSubtitle(title, serie) {
+function renderSubtitle(text, serie) {
   const element = document.createElement('h3');
   element.className = 'results__subtitle';
   element.textContent = serie.title;
 
   // listen icon
-  if (title === 'Series favoritas') {
+  if (text === 'Series favoritas') {
     const newIcon = document.createElement('i');
     newIcon.className = 'fas fa-times-circle';
     newIcon.addEventListener('click', handleIcon);
@@ -116,13 +118,12 @@ function renderSubtitle(title, serie) {
   return element;
 }
 
-function renderRemoveAllFavorites() {
-  const element = document.querySelector('.js-favorites');
+function renderResultsButton(element, text, handlerFunction) {
   const newButton = document.createElement('button');
-  newButton.className = 'main__button main__button--favorites';
-  newButton.type = 'reset';
-  newButton.textContent = 'Borrar series favoritas';
-  newButton.addEventListener('click', handleRemoveAllFavorites);
+  newButton.className = 'main__button main__button--results';
+  newButton.type = 'button';
+  newButton.textContent = text;
+  newButton.addEventListener('click', handlerFunction);
   element.appendChild(newButton);
 }
 
@@ -233,6 +234,10 @@ function handleRemoveAllFavorites() {
   renderFavorites();
   renderAnimeSeries();
   removeFavoritesFromLocalStorage();
+}
+
+function handleLoadMoreResults(event) {
+  console.log(event.currentTarget);
 }
 
 
