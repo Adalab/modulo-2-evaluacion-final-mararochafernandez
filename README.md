@@ -11,9 +11,11 @@ JavaScript web application for searching anime series and adding them as favorit
 ## Features
 
 - Use of Adalab Web Starter Kit
-- Fetch request: get data from API
+- Fetch API request
 - Event listeners and handlers
 - Advanced DOM manipulation
 - Local storage management
 - JavaScript array functional methods
 - HTML and Sass layout
+- BEM naming convention
+- Clean coding and refactoring

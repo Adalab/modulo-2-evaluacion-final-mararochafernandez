@@ -52,9 +52,9 @@ function renderData(element, title, series) {
   const newTitle = renderTitle(title);
   const newList = renderList();
   for (const serie of series) {
-    const newListItem = renderListItem(serie);
+    const newListItem = renderListItem(title, serie);
     const newImage = renderImage(serie);
-    const newSubtitle = renderSubtitle(serie);
+    const newSubtitle = renderSubtitle(title, serie);
     newListItem.appendChild(newImage);
     newListItem.appendChild(newSubtitle);
     newList.appendChild(newListItem);
@@ -76,10 +76,14 @@ function renderList() {
   return element;
 }
 
-function renderListItem(serie) {
+function renderListItem(title, serie) {
   const element = document.createElement('li');
   element.dataset.id = serie.mal_id;
-  element.addEventListener('click', handleListItem);
+
+  // listen list item
+  if (title === 'Resultados') {
+    element.addEventListener('click', handleListItem);
+  }
 
   // find favorite
   const favorite = findItem(favorites, serie.mal_id);
@@ -96,10 +100,19 @@ function renderImage(serie) {
   return element;
 }
 
-function renderSubtitle(serie) {
+function renderSubtitle(title, serie) {
   const element = document.createElement('h3');
   element.className = 'results__subtitle';
   element.textContent = serie.title;
+
+  // listen icon
+  if (title === 'Series favoritas') {
+    const newIcon = document.createElement('i');
+    newIcon.className = 'fas fa-times-circle';
+    newIcon.addEventListener('click', handleIcon);
+    element.appendChild(newIcon);
+  }
+
   return element;
 }
 
@@ -108,7 +121,7 @@ function renderRemoveAllFavorites() {
   const newButton = document.createElement('button');
   newButton.className = 'main__button main__button--favorites';
   newButton.type = 'reset';
-  newButton.textContent = 'Borrar todas las series favoritas';
+  newButton.textContent = 'Borrar series favoritas';
   newButton.addEventListener('click', handleRemoveAllFavorites);
   element.appendChild(newButton);
 }
@@ -118,7 +131,7 @@ function renderRemoveAllFavorites() {
 
 function getAnimeSeriesFromApi() {
 
-  /* pending implementation: pagination */
+  /* pending pagination: load more button (cargar más resultados) */
 
   // api documentation: only processes queries with a minimum of 3 letters
   if (searchTerm.length >= 3) {
@@ -141,7 +154,7 @@ function getFavoritesFromLocalStorage() {
   }
 }
 
-function saveFavoritesInLocalStorage() {
+function setFavoritesInLocalStorage() {
   if (favorites.length > 0) {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   } else {
@@ -166,7 +179,6 @@ function listenSearchForm() {
 function handleSearch(event) {
   event.preventDefault();
   const searchTermElement = document.querySelector('.js-search-term');
-  //searchTerm = searchTermElement.value ? searchTermElement.value : searchTerm;
   searchTerm = searchTermElement.value;
   if (searchTerm) {
     getAnimeSeriesFromApi();
@@ -185,7 +197,15 @@ function handleReset(event) {
 }
 
 function handleListItem(event) {
-  const currentId = parseInt(event.currentTarget.dataset.id);
+  handleFavorites(event.currentTarget);
+}
+
+function handleIcon(event) {
+  handleFavorites(event.currentTarget.parentNode.parentNode);
+}
+
+function handleFavorites(listItem) {
+  const currentId = parseInt(listItem.dataset.id);
 
   // find indexes
   const animeSerieIndex = findIndex(animeSeries, currentId);
@@ -194,14 +214,14 @@ function handleListItem(event) {
   // add/remove as favorite
   if (favoriteIndex === -1) {
     favorites.push(animeSeries[animeSerieIndex]);
-    event.currentTarget.classList.add('results__item--favorite');
+    listItem.classList.add('results__item--favorite');
   } else {
     favorites.splice(favoriteIndex, 1);
-    event.currentTarget.classList.remove('results__item--favorite');
+    listItem.classList.remove('results__item--favorite');
   }
 
-  // save favorites in local storage
-  saveFavoritesInLocalStorage();
+  // set favorites in local storage
+  setFavoritesInLocalStorage();
 
   // render data
   renderFavorites();
@@ -220,4 +240,5 @@ function handleRemoveAllFavorites() {
 
 getFavoritesFromLocalStorage();
 renderFavorites();
+//getAnimeSeriesFromApi();
 listenSearchForm();
