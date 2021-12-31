@@ -23,16 +23,17 @@ body {
 
 .results {
     &__title {
-        &--favorites {
-            color: $color-primary;
-        }
+        font-size: 20px;
+        line-height: 20px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid $color-secondary;
     }
     &__list {
         display: flex;
         flex-wrap: wrap;
     }
     &__item {
-        width: 235px;
+        width: 176px;
         height: auto;
         margin-top: 20px;
         margin-right: 20px;
@@ -46,8 +47,8 @@ body {
         }
     }
     &__image {
-        width: 227px;
-        height: 320px;
+        width: 166px;
+        height: 234px;
         margin: 3px;
         border-radius: 5px;
     }
@@ -55,10 +56,12 @@ body {
         padding: 10px;
         line-height: normal;
         margin-bottom: 2px;
+        font-size: 16px;
     }
 }
 
 .favorites.results {
+    width: 176px;
     margin-right: 40px;
     border: none;
     padding-left: 0;
@@ -78,8 +81,8 @@ body {
         align-items: flex-end;
     }
     &__subtitle .fas.fa-times-circle {
-        padding: 1px 5px;
-        font-size: 20px;
+        padding: 1px 1px 1px 5px;
+        font-size: 16px;
         cursor: pointer;
     }
 }

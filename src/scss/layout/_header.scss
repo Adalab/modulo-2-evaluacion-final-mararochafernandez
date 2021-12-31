@@ -1,5 +1,9 @@
 .header {
     &__title {
+        font-size: 28px;
+        line-height: 28px;
+        padding-bottom: 5px;
         margin-bottom: 20px;
+        border-bottom: 1px solid $color-secondary;
     }
 }

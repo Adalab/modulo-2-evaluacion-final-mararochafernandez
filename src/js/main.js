@@ -8,8 +8,12 @@
 
 const API_URL = 'https://api.jikan.moe/v3/search/anime';
 const DEFAULT_IMAGE = 'https://via.placeholder.com/227x320/e5e5e5/666/?text=TV';
+const RESULTS_TITLE = 'Resultados';
+const FAVORITES_TITLE = 'Series favoritas';
 
 let searchTerm = 'naruto';
+let lastPage = 0;
+let currentPage = 1;
 
 let animeSeries = [];
 let favorites = [];
@@ -32,10 +36,12 @@ function renderFavorites() {
   const favoritesElement = document.querySelector('.js-favorites');
   favoritesElement.textContent = '';
   if (favorites.length > 0) {
+    const newTitle = renderTitle(FAVORITES_TITLE);
+    const newList = renderList(FAVORITES_TITLE, favorites);
+    favoritesElement.appendChild(newTitle);
+    favoritesElement.appendChild(newList);
     favoritesElement.classList.add('favorites');
-    renderData(favoritesElement, 'Series favoritas', favorites);
     renderResultsButton(favoritesElement, 'Borrar series favoritas', handleRemoveAllFavorites);
-
   } else {
     favoritesElement.classList.remove('favorites');
   }
@@ -44,25 +50,18 @@ function renderFavorites() {
 function renderAnimeSeries() {
   const resultsElement = document.querySelector('.js-results');
   resultsElement.textContent = '';
-  if (animeSeries.length > 0) {
-    renderData(resultsElement, 'Resultados', animeSeries);
-    renderResultsButton(resultsElement, 'Cargar más resultados', handleLoadMoreResults);
-  }
-}
 
-function renderData(element, text, series) {
-  const newTitle = renderTitle(text);
-  const newList = renderList();
-  for (const serie of series) {
-    const newListItem = renderListItem(text, serie);
-    const newImage = renderImage(serie);
-    const newSubtitle = renderSubtitle(text, serie);
-    newListItem.appendChild(newImage);
-    newListItem.appendChild(newSubtitle);
-    newList.appendChild(newListItem);
+  if (animeSeries && animeSeries.length > 0) {
+    const newTitle = renderTitle(RESULTS_TITLE);
+    const newList = renderList(RESULTS_TITLE, animeSeries);
+    resultsElement.appendChild(newTitle);
+    resultsElement.appendChild(newList);
+
+    // render load more results button
+    if (lastPage > 1 && currentPage < lastPage) {
+      renderResultsButton(resultsElement, 'Cargar más resultados', handleLoadMoreResults);
+    }
   }
-  element.appendChild(newTitle);
-  element.appendChild(newList);
 }
 
 function renderTitle(text) {
@@ -72,18 +71,26 @@ function renderTitle(text) {
   return element;
 }
 
-function renderList() {
-  const element = document.createElement('ul');
-  element.className = 'results__list';
-  return element;
+function renderList(text, series) {
+  const newList = document.createElement('ul');
+  newList.className = 'results__list';
+  for (const serie of series) {
+    const newListItem = renderListItem(text, serie);
+    const newImage = renderImage(serie);
+    const newSubtitle = renderSubtitle(text, serie);
+    newListItem.appendChild(newImage);
+    newListItem.appendChild(newSubtitle);
+    newList.appendChild(newListItem);
+  }
+  return newList;
 }
 
 function renderListItem(text, serie) {
   const element = document.createElement('li');
   element.dataset.id = serie.mal_id;
 
-  // listen list item
-  if (text === 'Resultados') {
+  // listen list item (only in results section)
+  if (text === RESULTS_TITLE) {
     element.addEventListener('click', handleListItem);
   }
 
@@ -107,8 +114,8 @@ function renderSubtitle(text, serie) {
   element.className = 'results__subtitle';
   element.textContent = serie.title;
 
-  // listen icon
-  if (text === 'Series favoritas') {
+  // listen icon (only in favorites section)
+  if (text === FAVORITES_TITLE) {
     const newIcon = document.createElement('i');
     newIcon.className = 'fas fa-times-circle';
     newIcon.addEventListener('click', handleIcon);
@@ -132,14 +139,18 @@ function renderResultsButton(element, text, handlerFunction) {
 
 function getAnimeSeriesFromApi() {
 
-  /* pending pagination: load more button (cargar más resultados) */
+  // reset results from previous search
+  if (currentPage === 1) {
+    animeSeries = [];
+  }
 
   // api documentation: only processes queries with a minimum of 3 letters
   if (searchTerm.length >= 3) {
-    fetch(`${API_URL}?q=${searchTerm}&limit=12`)
+    fetch(`${API_URL}?q=${searchTerm}&page=${currentPage}`)
       .then(response => response.json())
       .then(data => {
-        animeSeries = data.results;
+        lastPage = data.last_page;
+        animeSeries = animeSeries.concat(data.results);
         renderAnimeSeries();
       });
   }
@@ -182,6 +193,7 @@ function handleSearch(event) {
   const searchTermElement = document.querySelector('.js-search-term');
   searchTerm = searchTermElement.value;
   if (searchTerm) {
+    currentPage = 1;
     getAnimeSeriesFromApi();
   } else {
     animeSeries = [];
@@ -193,6 +205,7 @@ function handleReset(event) {
   event.preventDefault();
   const searchTermElement = document.querySelector('.js-search-term');
   searchTermElement.value = '';
+  currentPage = 1;
   animeSeries = [];
   renderAnimeSeries();
 }
@@ -237,7 +250,11 @@ function handleRemoveAllFavorites() {
 }
 
 function handleLoadMoreResults(event) {
-  console.log(event.currentTarget);
+  currentPage++;
+  getAnimeSeriesFromApi();
+
+  // remove clicked button
+  event.currentTarget.remove();
 }
 
 
