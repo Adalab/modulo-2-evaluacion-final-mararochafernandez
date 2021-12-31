@@ -19,3 +19,8 @@ JavaScript web application for searching anime series and adding them as favorit
 - HTML and Sass layout
 - BEM naming convention
 - Clean coding and refactoring
+
+## Bonus
+
+- Remove from favorites
+- Allow pagination
