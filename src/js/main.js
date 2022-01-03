@@ -40,8 +40,11 @@ function renderFavorites() {
     const newList = renderList(FAVORITES_TITLE, favorites);
     favoritesElement.appendChild(newTitle);
     favoritesElement.appendChild(newList);
-    favoritesElement.classList.add('favorites');
+
+    // render "remove all favorites" button
     renderResultsButton(favoritesElement, 'Borrar series favoritas', handleRemoveAllFavorites);
+
+    favoritesElement.classList.add('favorites');
   } else {
     favoritesElement.classList.remove('favorites');
   }
@@ -50,14 +53,13 @@ function renderFavorites() {
 function renderAnimeSeries() {
   const resultsElement = document.querySelector('.js-results');
   resultsElement.textContent = '';
-
-  if (animeSeries && animeSeries.length > 0) {
+  if (animeSeries.length > 0) {
     const newTitle = renderTitle(RESULTS_TITLE);
     const newList = renderList(RESULTS_TITLE, animeSeries);
     resultsElement.appendChild(newTitle);
     resultsElement.appendChild(newList);
 
-    // render load more results button
+    // render "load more results" button
     if (lastPage > 1 && currentPage < lastPage) {
       renderResultsButton(resultsElement, 'Cargar más resultados', handleLoadMoreResults);
     }
@@ -72,17 +74,17 @@ function renderTitle(text) {
 }
 
 function renderList(text, series) {
-  const newList = document.createElement('ul');
-  newList.className = 'results__list';
+  const element = document.createElement('ul');
+  element.className = 'results__list';
   for (const serie of series) {
     const newListItem = renderListItem(text, serie);
     const newImage = renderImage(serie);
     const newSubtitle = renderSubtitle(text, serie);
     newListItem.appendChild(newImage);
     newListItem.appendChild(newSubtitle);
-    newList.appendChild(newListItem);
+    element.appendChild(newListItem);
   }
-  return newList;
+  return element;
 }
 
 function renderListItem(text, serie) {
@@ -215,7 +217,8 @@ function handleListItem(event) {
 }
 
 function handleIcon(event) {
-  handleFavorites(event.currentTarget.parentNode.parentNode);
+  const listItemElement = event.currentTarget.parentNode.parentNode;
+  handleFavorites(listItemElement);
 }
 
 function handleFavorites(listItem) {
