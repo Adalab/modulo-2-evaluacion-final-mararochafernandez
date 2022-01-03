@@ -42,7 +42,8 @@ function renderFavorites() {
     favoritesElement.appendChild(newList);
 
     // render "remove all favorites" button
-    renderResultsButton(favoritesElement, 'Borrar series favoritas', handleRemoveAllFavorites);
+    const newButton = renderResultsButton('Borrar series favoritas', handleRemoveAllFavorites);
+    favoritesElement.appendChild(newButton);
 
     favoritesElement.classList.add('favorites');
   } else {
@@ -60,8 +61,9 @@ function renderAnimeSeries() {
     resultsElement.appendChild(newList);
 
     // render "load more results" button
-    if (lastPage > 1 && currentPage < lastPage) {
-      renderResultsButton(resultsElement, 'Cargar más resultados', handleLoadMoreResults);
+    if (currentPage < lastPage) {
+      const newButton = renderResultsButton('Cargar más resultados', handleLoadMoreResults);
+      resultsElement.appendChild(newButton);
     }
   }
 }
@@ -96,7 +98,7 @@ function renderListItem(text, serie) {
     element.addEventListener('click', handleListItem);
   }
 
-  // find favorite
+  // check if favorite
   const favorite = findItem(favorites, serie.mal_id);
   element.className = favorite ? 'results__item results__item--favorite' : 'results__item';
 
@@ -116,24 +118,29 @@ function renderSubtitle(text, serie) {
   element.className = 'results__subtitle';
   element.textContent = serie.title;
 
-  // listen icon (only in favorites section)
+  // render and listen icon (only in favorites section)
   if (text === FAVORITES_TITLE) {
-    const newIcon = document.createElement('i');
-    newIcon.className = 'fas fa-times-circle';
-    newIcon.addEventListener('click', handleIcon);
+    const newIcon = renderIcon();
     element.appendChild(newIcon);
   }
 
   return element;
 }
 
-function renderResultsButton(element, text, handlerFunction) {
-  const newButton = document.createElement('button');
-  newButton.className = 'main__button main__button--results';
-  newButton.type = 'button';
-  newButton.textContent = text;
-  newButton.addEventListener('click', handlerFunction);
-  element.appendChild(newButton);
+function renderIcon() {
+  const element = document.createElement('i');
+  element.className = 'fas fa-times-circle';
+  element.addEventListener('click', handleIcon);
+  return element;
+}
+
+function renderResultsButton(text, handlerFunction) {
+  const element = document.createElement('button');
+  element.className = 'main__button main__button--results';
+  element.type = 'button';
+  element.textContent = text;
+  element.addEventListener('click', handlerFunction);
+  return element;
 }
 
 
@@ -146,16 +153,13 @@ function getAnimeSeriesFromApi() {
     animeSeries = [];
   }
 
-  // api documentation: only processes queries with a minimum of 3 letters
-  if (searchTerm.length >= 3) {
-    fetch(`${API_URL}?q=${searchTerm}&page=${currentPage}`)
-      .then(response => response.json())
-      .then(data => {
-        lastPage = data.last_page;
-        animeSeries = animeSeries.concat(data.results);
-        renderAnimeSeries();
-      });
-  }
+  fetch(`${API_URL}?q=${searchTerm}&page=${currentPage}`)
+    .then(response => response.json())
+    .then(data => {
+      lastPage = data.last_page;
+      animeSeries = animeSeries.concat(data.results);
+      renderAnimeSeries();
+    });
 }
 
 
@@ -194,7 +198,9 @@ function handleSearch(event) {
   event.preventDefault();
   const searchTermElement = document.querySelector('.js-search-term');
   searchTerm = searchTermElement.value;
-  if (searchTerm) {
+
+  // api documentation: only processes queries with a minimum of 3 letters
+  if (searchTerm && searchTerm.length >= 3) {
     currentPage = 1;
     getAnimeSeriesFromApi();
   } else {
@@ -217,8 +223,7 @@ function handleListItem(event) {
 }
 
 function handleIcon(event) {
-  const listItemElement = event.currentTarget.parentNode.parentNode;
-  handleFavorites(listItemElement);
+  handleFavorites(event.currentTarget.parentNode.parentNode);
 }
 
 function handleFavorites(listItem) {
@@ -237,12 +242,9 @@ function handleFavorites(listItem) {
     listItem.classList.remove('results__item--favorite');
   }
 
-  // set favorites in local storage
-  setFavoritesInLocalStorage();
-
-  // render data
   renderFavorites();
   renderAnimeSeries();
+  setFavoritesInLocalStorage();
 }
 
 function handleRemoveAllFavorites() {
@@ -265,5 +267,4 @@ function handleLoadMoreResults(event) {
 
 getFavoritesFromLocalStorage();
 renderFavorites();
-//getAnimeSeriesFromApi();
 listenSearchForm();
