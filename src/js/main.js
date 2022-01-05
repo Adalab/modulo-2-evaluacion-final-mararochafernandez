@@ -1,8 +1,6 @@
 'use strict';
 
-
 /* Let's do magic! 🦄🦄🦄 */
-
 
 // global data
 
@@ -18,17 +16,15 @@ let currentPage = 1;
 let animeSeries = [];
 let favorites = [];
 
-
 // helpers
 
 function findIndex(array, id) {
-  return array.findIndex(item => item.mal_id === id);
+  return array.findIndex((item) => item.mal_id === id);
 }
 
 function findItem(array, id) {
-  return array.find(item => item.mal_id === id);
+  return array.find((item) => item.mal_id === id);
 }
-
 
 // data rendering
 
@@ -42,7 +38,10 @@ function renderFavorites() {
     favoritesElement.appendChild(newList);
 
     // render "remove all favorites" button
-    const newButton = renderResultsButton('Borrar series favoritas', handleRemoveAllFavorites);
+    const newButton = renderResultsButton(
+      'Borrar series favoritas',
+      handleRemoveAllFavorites
+    );
     favoritesElement.appendChild(newButton);
 
     favoritesElement.classList.add('favorites');
@@ -62,7 +61,10 @@ function renderAnimeSeries() {
 
     // render "load more results" button
     if (currentPage < lastPage) {
-      const newButton = renderResultsButton('Cargar más resultados', handleLoadMoreResults);
+      const newButton = renderResultsButton(
+        'Cargar más resultados',
+        handleLoadMoreResults
+      );
       resultsElement.appendChild(newButton);
     }
   }
@@ -100,7 +102,9 @@ function renderListItem(text, serie) {
 
   // check if favorite
   const favorite = findItem(favorites, serie.mal_id);
-  element.className = favorite ? 'results__item results__item--favorite' : 'results__item';
+  element.className = favorite
+    ? 'results__item results__item--favorite'
+    : 'results__item';
 
   return element;
 }
@@ -108,7 +112,11 @@ function renderListItem(text, serie) {
 function renderImage(serie) {
   const element = document.createElement('img');
   element.className = 'results__image';
-  element.src = serie.image_url && serie.image_url.includes('https://cdn.myanimelist.net/images/anime/') ? serie.image_url : DEFAULT_IMAGE;
+  element.src =
+    serie.image_url &&
+    serie.image_url.includes('https://cdn.myanimelist.net/images/anime/')
+      ? serie.image_url
+      : DEFAULT_IMAGE;
   element.alt = serie.title;
   return element;
 }
@@ -123,6 +131,11 @@ function renderSubtitle(text, serie) {
     const newIcon = renderIcon();
     element.appendChild(newIcon);
   }
+
+  // type
+  const newP = document.createElement('p');
+  newP.textContent = serie.type;
+  element.appendChild(newP);
 
   return element;
 }
@@ -143,30 +156,29 @@ function renderResultsButton(text, handlerFunction) {
   return element;
 }
 
-
 // api
 
 function getAnimeSeriesFromApi() {
-
   // reset results from previous search
   if (currentPage === 1) {
     animeSeries = [];
   }
 
   fetch(`${API_URL}?q=${searchTerm}&page=${currentPage}`)
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       lastPage = data.last_page;
       animeSeries = animeSeries.concat(data.results);
       renderAnimeSeries();
     });
 }
 
-
 // local storage
 
 function getFavoritesFromLocalStorage() {
-  const favoritesFromLocalStorage = JSON.parse(localStorage.getItem('favorites'));
+  const favoritesFromLocalStorage = JSON.parse(
+    localStorage.getItem('favorites')
+  );
   if (favoritesFromLocalStorage) {
     favorites = favoritesFromLocalStorage;
   }
@@ -184,14 +196,15 @@ function removeFavoritesFromLocalStorage() {
   localStorage.removeItem('favorites');
 }
 
-
 // event listeners and handlers
 
 function listenSearchForm() {
   const searchButtonElement = document.querySelector('.js-button-search');
   const resetButtonElement = document.querySelector('.js-button-reset');
+  const logButtonElement = document.querySelector('.js-button-log');
   searchButtonElement.addEventListener('click', handleSearch);
   resetButtonElement.addEventListener('click', handleReset);
+  logButtonElement.addEventListener('click', handleLog);
 }
 
 function handleSearch(event) {
@@ -262,6 +275,11 @@ function handleLoadMoreResults(event) {
   event.currentTarget.remove();
 }
 
+function handleLog() {
+  for (const fav of favorites) {
+    console.log(fav.title);
+  }
+}
 
 // app start
 
