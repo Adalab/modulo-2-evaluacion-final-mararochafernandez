@@ -81,24 +81,35 @@ function renderList(text, series) {
   const element = document.createElement('ul');
   element.className = 'results__list';
   for (const serie of series) {
-    const newListItem = renderListItem(text, serie);
+    const newListItem = renderListItem(serie);
     const newImage = renderImage(serie);
-    const newSubtitle = renderSubtitle(text, serie);
+    const newSubtitle = renderSubtitle(serie);
     newListItem.appendChild(newImage);
     newListItem.appendChild(newSubtitle);
+
+    // render type (technical interview)
+    const newText = document.createElement('p');
+    newText.className = 'results__type';
+    newText.textContent = serie.type;
+    newListItem.appendChild(newText);
+
+    if (text === RESULTS_TITLE) {
+      // listen list item (only in results section)
+      newListItem.addEventListener('click', handleListItem);
+    } else {
+      // render and listen icon (only in favorites section)
+      const newIcon = renderIcon();
+      newListItem.appendChild(newIcon);
+    }
+
     element.appendChild(newListItem);
   }
   return element;
 }
 
-function renderListItem(text, serie) {
+function renderListItem(serie) {
   const element = document.createElement('li');
   element.dataset.id = serie.mal_id;
-
-  // listen list item (only in results section)
-  if (text === RESULTS_TITLE) {
-    element.addEventListener('click', handleListItem);
-  }
 
   // check if favorite
   const favorite = findItem(favorites, serie.mal_id);
@@ -121,22 +132,10 @@ function renderImage(serie) {
   return element;
 }
 
-function renderSubtitle(text, serie) {
+function renderSubtitle(serie) {
   const element = document.createElement('h3');
   element.className = 'results__subtitle';
   element.textContent = serie.title;
-
-  // render and listen icon (only in favorites section)
-  if (text === FAVORITES_TITLE) {
-    const newIcon = renderIcon();
-    element.appendChild(newIcon);
-  }
-
-  // type
-  const newP = document.createElement('p');
-  newP.textContent = serie.type;
-  element.appendChild(newP);
-
   return element;
 }
 
@@ -236,7 +235,7 @@ function handleListItem(event) {
 }
 
 function handleIcon(event) {
-  handleFavorites(event.currentTarget.parentNode.parentNode);
+  handleFavorites(event.currentTarget.parentNode);
 }
 
 function handleFavorites(listItem) {
@@ -275,7 +274,9 @@ function handleLoadMoreResults(event) {
   event.currentTarget.remove();
 }
 
-function handleLog() {
+// log data in console (technical interview)
+function handleLog(event) {
+  event.preventDefault();
   for (const fav of favorites) {
     console.log(fav.title);
   }
