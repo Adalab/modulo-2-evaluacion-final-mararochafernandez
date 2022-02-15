@@ -2,7 +2,7 @@
 
 [Mara Rocha Fernández](https://github.com/mararochafernandez) ✨
 
-Exercise URL: [Buscador de series de anime](http://beta.adalab.es/modulo-2-evaluacion-final-mararochafernandez/)
+Exercise URL: [Buscador de series de anime](https://mararochafernandez.github.io/modulo-2-evaluacion-final/)
 
 # Final evaluation exercise (module 2)
 
